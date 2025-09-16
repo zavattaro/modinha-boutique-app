@@ -84,7 +84,7 @@ export default function Register() {
       
       toast({
         title: "Conta criada com sucesso!",
-        description: "Bem-vindo ao Manus. Sua conta foi criada."
+        description: "Bem-vindo à Ubis Shop. Sua conta foi criada."
       });
       navigate('/');
     } catch (error) {
@@ -104,7 +104,7 @@ export default function Register() {
       await loginWithGoogle();
       toast({
         title: "Conta criada com sucesso!",
-        description: "Bem-vindo ao Manus"
+        description: "Bem-vindo à Ubis Shop"
       });
       navigate('/');
     } catch (error) {
@@ -139,7 +139,7 @@ export default function Register() {
             <div>
               <CardTitle className="text-2xl font-bold">Criar sua conta</CardTitle>
               <CardDescription className="text-muted-foreground">
-                Junte-se à comunidade Manus e descubra as melhores tendências
+                Junte-se à comunidade Ubis Shop e descubra as melhores tendências
               </CardDescription>
             </div>
           </CardHeader>

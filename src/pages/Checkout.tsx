@@ -45,7 +45,7 @@ export default function Checkout() {
   };
 
   const generateWhatsAppMessage = () => {
-    let message = `🛍️ *Novo Pedido - Manus Store*\n\n`;
+    let message = `🛍️ *Novo Pedido - Ubis Shop*\n\n`;
     message += `👤 *Cliente:* ${customerInfo.name}\n`;
     message += `📧 *Email:* ${customerInfo.email}\n`;
     message += `📱 *Telefone:* ${customerInfo.phone}\n`;

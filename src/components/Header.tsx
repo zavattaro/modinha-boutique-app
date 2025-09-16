@@ -29,7 +29,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-card">
       {/* Top Bar */}
       <div className="bg-gradient-primary text-white text-center py-2 text-sm">
-        📦 Frete grátis para compras acima de R$ 299 | 🏪 Loja oficial Manus
+        📦 Frete grátis para compras acima de R$ 299 | 🏪 Loja oficial Ubis Shop
       </div>
 
       {/* Main Header */}
@@ -38,13 +38,13 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">M</span>
+              <span className="text-white font-bold text-lg">U</span>
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Manus
+                Ubis Shop
               </h1>
-              <p className="text-xs text-muted-foreground">Leave it to Manus</p>
+              <p className="text-xs text-muted-foreground">Sua loja de confiança</p>
             </div>
           </Link>
 

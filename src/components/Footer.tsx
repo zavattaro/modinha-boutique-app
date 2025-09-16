@@ -10,13 +10,13 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">M</span>
+                <span className="text-white font-bold text-lg">U</span>
               </div>
               <div>
                 <h3 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  Manus
+                  Ubis Shop
                 </h3>
-                <p className="text-xs text-muted-foreground">Leave it to Manus</p>
+                <p className="text-xs text-muted-foreground">Sua loja de confiança</p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -24,7 +24,7 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="https://instagram.com/manus_store"
+                href="https://instagram.com/ubis_shop"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
@@ -40,7 +40,7 @@ export default function Footer() {
                 <MessageCircle className="w-5 h-5" />
               </a>
               <a
-                href="mailto:contato@manus.com"
+                href="mailto:contato@ubisshop.com"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
                 <Mail className="w-5 h-5" />
@@ -102,7 +102,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-3 text-sm">
                 <Mail className="w-4 h-4 text-primary" />
-                <span className="text-muted-foreground">contato@manus.com</span>
+                <span className="text-muted-foreground">contato@ubisshop.com</span>
               </div>
               <div className="flex items-start space-x-3 text-sm">
                 <MapPin className="w-4 h-4 text-primary mt-0.5" />
@@ -119,7 +119,7 @@ export default function Footer() {
         <div className="border-t border-border pt-8 mt-8">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             <p className="text-sm text-muted-foreground">
-              © 2024 Manus Store. Todos os direitos reservados.
+              © 2024 Ubis Shop. Todos os direitos reservados.
             </p>
             <div className="flex items-center space-x-6 text-sm text-muted-foreground">
               <Link to="/privacidade" className="hover:text-primary transition-colors">

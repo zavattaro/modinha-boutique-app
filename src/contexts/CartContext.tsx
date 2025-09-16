@@ -19,7 +19,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Load cart from localStorage
-    const savedCart = localStorage.getItem('manus_cart');
+    const savedCart = localStorage.getItem('ubisshop_cart');
     if (savedCart) {
       setItems(JSON.parse(savedCart));
     }
@@ -27,7 +27,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Save cart to localStorage whenever it changes
-    localStorage.setItem('manus_cart', JSON.stringify(items));
+    localStorage.setItem('ubisshop_cart', JSON.stringify(items));
   }, [items]);
 
   const addToCart = (product: Product, quantity = 1, attributes?: Record<string, string>) => {

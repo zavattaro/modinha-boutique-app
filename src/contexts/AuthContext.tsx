@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for stored user session
-    const storedUser = localStorage.getItem('manus_user');
+    const storedUser = localStorage.getItem('ubisshop_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const { password: _, ...userData } = foundUser;
       setUser(userData);
-      localStorage.setItem('manus_user', JSON.stringify(userData));
+      localStorage.setItem('ubisshop_user', JSON.stringify(userData));
     } catch (error) {
       throw error;
     } finally {
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createdAt: new Date().toISOString()
       };
       setUser(googleUser);
-      localStorage.setItem('manus_user', JSON.stringify(googleUser));
+      localStorage.setItem('ubisshop_user', JSON.stringify(googleUser));
     } catch (error) {
       throw error;
     } finally {
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       mockUsers.push({ ...newUser, password: userData.password });
       setUser(newUser);
-      localStorage.setItem('manus_user', JSON.stringify(newUser));
+      localStorage.setItem('ubisshop_user', JSON.stringify(newUser));
     } catch (error) {
       throw error;
     } finally {
@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('manus_user');
+    localStorage.removeItem('ubisshop_user');
   };
 
   return (

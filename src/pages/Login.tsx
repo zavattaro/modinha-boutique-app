@@ -36,7 +36,7 @@ export default function Login() {
       await login(email, password);
       toast({
         title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta ao Manus"
+        description: "Bem-vindo de volta à Ubis Shop"
       });
       navigate(from, { replace: true });
     } catch (error) {
@@ -56,7 +56,7 @@ export default function Login() {
       await loginWithGoogle();
       toast({
         title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao Manus"
+        description: "Bem-vindo à Ubis Shop"
       });
       navigate(from, { replace: true });
     } catch (error) {
@@ -91,7 +91,7 @@ export default function Login() {
             <div>
               <CardTitle className="text-2xl font-bold">Entrar na sua conta</CardTitle>
               <CardDescription className="text-muted-foreground">
-                Acesse sua conta Manus para continuar comprando
+                Acesse sua conta Ubis Shop para continuar comprando
               </CardDescription>
             </div>
           </CardHeader>
@@ -100,7 +100,7 @@ export default function Login() {
             {/* Demo Credentials */}
             <div className="bg-muted/50 rounded-lg p-4 text-sm">
               <p className="font-medium mb-2">💡 Credenciais para teste:</p>
-              <p><strong>Admin:</strong> admin@manus.com / admin123</p>
+              <p><strong>Admin:</strong> admin@ubisshop.com / admin123</p>
               <p><strong>Cliente:</strong> joao@email.com / 123456</p>
             </div>
 
