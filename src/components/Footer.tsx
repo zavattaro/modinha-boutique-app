@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Instagram, MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
+import ubisLogo from '@/assets/ubis-logo.jpg';
 
 export default function Footer() {
   return (
@@ -8,19 +9,21 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">U</span>
-              </div>
+            <div className="flex items-center space-x-3">
+              <img 
+                src={ubisLogo} 
+                alt="Ubis Shop Logo" 
+                className="w-10 h-10 object-contain rounded-lg shadow-sm"
+              />
               <div>
-                <h3 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
+                <h3 className="text-lg font-bold text-foreground">
                   Ubis Shop
                 </h3>
-                <p className="text-xs text-muted-foreground">Sua loja de confiança</p>
+                <p className="text-xs text-muted-foreground">Mais que uma carona, uma conveniência</p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              Sua loja de roupas e utilidades modernas. Tendências que você ama, preços que você pode pagar.
+              Sua loja de roupas e utilidades modernas. Qualidade, confiança e conveniência em um só lugar.
             </p>
             <div className="flex space-x-4">
               <a

@@ -25,22 +25,22 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 bg-gradient-hero overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative container mx-auto text-center text-white">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-                Moda que
-                <span className="block bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-                  inspira
-                </span>
-              </h1>
-              <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
-                Descubra as últimas tendências em roupas e utilidades na Ubis Shop.
-              </p>
-            </div>
+        {/* Hero Section */}
+        <section className="relative py-20 px-4 bg-gradient-hero overflow-hidden">
+          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="relative container mx-auto text-center text-white">
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="space-y-4">
+                <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+                  Ubis Shop
+                  <span className="block bg-gradient-to-r from-orange-400 to-orange-200 bg-clip-text text-transparent">
+                    Mais que uma carona
+                  </span>
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
+                  Sua loja de confiança para roupas e utilidades modernas. Qualidade e conveniência em um só lugar.
+                </p>
+              </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link to="/produtos">

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import ubisLogo from '@/assets/ubis-logo.jpg';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,23 +29,25 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-card">
       {/* Top Bar */}
-      <div className="bg-gradient-primary text-white text-center py-2 text-sm">
-        📦 Frete grátis para compras acima de R$ 299 | 🏪 Loja oficial Ubis Shop
+      <div className="bg-gradient-primary text-white text-center py-2 text-sm font-medium">
+        📦 Frete grátis para compras acima de R$ 299 | 🏆 Loja oficial Ubis Shop - Sua confiança, nossa prioridade
       </div>
 
       {/* Main Header */}
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">U</span>
-            </div>
+          <Link to="/" className="flex items-center space-x-3 hover:opacity-90 transition-opacity">
+            <img 
+              src={ubisLogo} 
+              alt="Ubis Shop Logo" 
+              className="w-12 h-12 object-contain rounded-lg shadow-sm"
+            />
             <div>
-              <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold text-foreground">
                 Ubis Shop
               </h1>
-              <p className="text-xs text-muted-foreground">Sua loja de confiança</p>
+              <p className="text-xs text-muted-foreground">Mais que uma carona, uma conveniência</p>
             </div>
           </Link>
 
@@ -54,8 +57,10 @@ export default function Header() {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(item.href) ? 'text-primary' : 'text-foreground'
+                className={`text-sm font-medium transition-colors hover:text-primary relative py-2 ${
+                  isActive(item.href) 
+                    ? 'text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary' 
+                    : 'text-foreground hover:text-primary'
                 }`}
               >
                 {item.name}
@@ -71,7 +76,7 @@ export default function Header() {
                 placeholder="Buscar produtos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-muted/50 border-none focus:ring-2 focus:ring-primary/20"
+                className="pl-10 bg-muted/30 border border-input focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
           </div>
@@ -139,7 +144,7 @@ export default function Header() {
               placeholder="Buscar produtos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-muted/50 border-none"
+              className="pl-10 bg-muted/30 border border-input"
             />
           </div>
         </div>
