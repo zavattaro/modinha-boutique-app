@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CreditCard, Truck, MapPin, User, Phone, Mail, MessageCircle } from 'lucide-react';
+import { CreditCard, Truck, MapPin, User, Phone, Mail, MessageCircle, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
+import { MercadoPagoService } from '@/services/mercadoPagoService';
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
@@ -18,6 +20,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('whatsapp');
+  const [paymentMethodId, setPaymentMethodId] = useState('');
   
   const [customerInfo, setCustomerInfo] = useState({
     name: user?.name || '',
@@ -90,6 +93,16 @@ export default function Checkout() {
       return;
     }
 
+    // Validate payment method selection for Mercado Pago
+    if ((paymentMethod === 'pix' || paymentMethod === 'credit') && !paymentMethodId) {
+      toast({
+        title: "Selecione uma forma de pagamento",
+        description: "Por favor, selecione uma forma de pagamento válida",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -114,8 +127,66 @@ export default function Checkout() {
         
         // Redirect to success page
         navigate('/pedido-enviado');
+      } else if (paymentMethod === 'pix' || paymentMethod === 'credit') {
+        // Process Mercado Pago payment
+        const [firstName, ...lastNameParts] = customerInfo.name.split(' ');
+        const lastName = lastNameParts.join(' ') || firstName;
+
+        const paymentData = {
+          transaction_amount: finalTotal,
+          description: `Pedido Ubis Shop - ${items.length} item(s)`,
+          payment_method_id: paymentMethodId,
+          payer: {
+            email: customerInfo.email,
+            first_name: firstName,
+            last_name: lastName,
+          },
+          items: items.map(item => ({
+            title: item.name,
+            quantity: item.quantity,
+            unit_price: item.price
+          })),
+          external_reference: `ORDER-${Date.now()}`
+        };
+
+        const result = await MercadoPagoService.createPayment(paymentData);
+
+        if (result.success && result.payment) {
+          // Clear cart
+          clearCart();
+
+          if (result.payment.status === 'approved') {
+            toast({
+              title: "Pagamento aprovado!",
+              description: "Seu pedido foi confirmado com sucesso",
+            });
+            navigate('/pedido-enviado');
+          } else if (result.payment.status === 'pending') {
+            if (paymentMethodId === 'pix') {
+              toast({
+                title: "PIX gerado!",
+                description: "Use o código PIX para finalizar o pagamento",
+              });
+              // Here you could show PIX QR code or copy-paste code
+            } else {
+              toast({
+                title: "Pagamento pendente",
+                description: "Aguardando confirmação do pagamento",
+              });
+            }
+            navigate('/pedido-enviado');
+          } else if (result.payment.status === 'rejected') {
+            toast({
+              title: "Pagamento rejeitado",
+              description: "Tente novamente ou use outro método de pagamento",
+              variant: "destructive"
+            });
+          }
+        } else {
+          throw new Error(result.error || 'Erro no processamento do pagamento');
+        }
       } else {
-        // For future payment integrations (Asaas, etc.)
+        // For future payment integrations
         toast({
           title: "Método de pagamento em breve",
           description: "Esta opção estará disponível em breve. Use o WhatsApp por enquanto.",
@@ -123,6 +194,7 @@ export default function Checkout() {
         });
       }
     } catch (error) {
+      console.error('Payment error:', error);
       toast({
         title: "Erro ao processar pedido",
         description: "Tente novamente ou entre em contato conosco",
@@ -257,7 +329,7 @@ export default function Checkout() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
                   <div className="flex items-center space-x-2 p-4 border rounded-lg">
                     <RadioGroupItem value="whatsapp" id="whatsapp" />
                     <Label htmlFor="whatsapp" className="flex-1 cursor-pointer">
@@ -276,21 +348,67 @@ export default function Checkout() {
                     </Label>
                   </div>
                   
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg opacity-60">
-                    <RadioGroupItem value="credit" id="credit" disabled />
+                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
+                    <RadioGroupItem value="pix" id="pix" />
+                    <Label htmlFor="pix" className="flex-1 cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium">PIX</p>
+                          <p className="text-sm text-muted-foreground">
+                            Pagamento instantâneo via PIX
+                          </p>
+                        </div>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
+                    <RadioGroupItem value="credit" id="credit" />
                     <Label htmlFor="credit" className="flex-1 cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <CreditCard className="w-5 h-5" />
+                        <CreditCard className="w-5 h-5 text-purple-600" />
                         <div>
                           <p className="font-medium">Cartão de Crédito</p>
                           <p className="text-sm text-muted-foreground">
-                            Em breve - Pagamento via Asaas
+                            Pagamento via Mercado Pago
                           </p>
                         </div>
                       </div>
                     </Label>
                   </div>
                 </RadioGroup>
+
+                {/* Payment Method Selection for Mercado Pago */}
+                {(paymentMethod === 'pix' || paymentMethod === 'credit') && (
+                  <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+                    <Label htmlFor="paymentMethodSelect" className="text-sm font-medium">
+                      {paymentMethod === 'pix' ? 'Confirme o PIX:' : 'Selecione o cartão:'}
+                    </Label>
+                    <Select value={paymentMethodId} onValueChange={setPaymentMethodId}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder={
+                          paymentMethod === 'pix' 
+                            ? 'Selecionar PIX' 
+                            : 'Selecione seu cartão'
+                        } />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {paymentMethod === 'pix' ? (
+                          <SelectItem value="pix">PIX - Pagamento Instantâneo</SelectItem>
+                        ) : (
+                          MercadoPagoService.getPaymentMethods()
+                            .filter(method => method.type === 'credit_card')
+                            .map(method => (
+                              <SelectItem key={method.id} value={method.id}>
+                                {method.name}
+                              </SelectItem>
+                            ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -373,6 +491,10 @@ export default function Checkout() {
                   {isLoading ? 'Processando...' : (
                     paymentMethod === 'whatsapp' 
                       ? 'Enviar para WhatsApp' 
+                      : paymentMethod === 'pix'
+                      ? 'Pagar com PIX'
+                      : paymentMethod === 'credit'
+                      ? 'Pagar com Cartão'
                       : 'Finalizar Compra'
                   )}
                 </Button>
