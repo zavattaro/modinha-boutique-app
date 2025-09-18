@@ -72,11 +72,11 @@ serve(async (req) => {
 
     // Calculate amounts
     const discountRate = coupon.discount_rate / 100;
-    const commissionRate = coupon.affiliate.commission_rate / 100;
-    
     const discountAmount = orderAmount * discountRate;
-    const commissionAmount = orderAmount * commissionRate;
-    const finalAmount = orderAmount - discountAmount - commissionAmount;
+    
+    // The discount amount goes to affiliate as commission
+    const commissionAmount = discountAmount;
+    const finalAmount = orderAmount - discountAmount;
 
     console.log('Calculated amounts:', { 
       discountAmount, 

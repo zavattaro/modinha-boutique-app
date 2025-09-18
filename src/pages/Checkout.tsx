@@ -52,9 +52,7 @@ export default function Checkout() {
   
   // Calculate final amounts with coupon
   const discountAmount = appliedCoupon?.discountAmount || 0;
-  const commissionAmount = appliedCoupon?.commissionAmount || 0;
-  const totalReduction = discountAmount + commissionAmount;
-  const finalTotal = appliedCoupon ? Math.max(subtotalWithShipping - totalReduction, 0) : subtotalWithShipping;
+  const finalTotal = appliedCoupon ? Math.max(subtotalWithShipping - discountAmount, 0) : subtotalWithShipping;
 
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
@@ -137,7 +135,6 @@ export default function Checkout() {
     message += `• Frete: ${shipping === 0 ? 'GRÁTIS' : formatPrice(shipping)}\n`;
     if (appliedCoupon) {
       message += `• Desconto (${appliedCoupon.coupon?.code}): -${formatPrice(discountAmount)}\n`;
-      message += `• Taxa de indicação: -${formatPrice(commissionAmount)}\n`;
     }
     message += `• *Total: ${formatPrice(finalTotal)}*\n\n`;
     
@@ -530,7 +527,6 @@ export default function Checkout() {
                         {couponValidation.valid ? (
                           <div className="mt-2 space-y-1 text-xs">
                             <p>Desconto: {formatPrice(couponValidation.discountAmount || 0)}</p>
-                            <p>Indicação: {formatPrice(couponValidation.commissionAmount || 0)}</p>
                             <p className="font-medium">Você pagará: {formatPrice(couponValidation.finalAmount || 0)}</p>
                             <Button
                               type="button"
@@ -565,8 +561,7 @@ export default function Checkout() {
                       </Button>
                     </div>
                     <div className="mt-2 space-y-1 text-xs text-green-700">
-                      <p>Desconto: {formatPrice(discountAmount)}</p>
-                      <p>Taxa de indicação: {formatPrice(commissionAmount)}</p>
+                      <p>Desconto aplicado: {formatPrice(discountAmount)}</p>
                     </div>
                   </div>
                 )}
@@ -635,16 +630,10 @@ export default function Checkout() {
                     </span>
                   </div>
                   {appliedCoupon && (
-                    <>
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>Desconto ({appliedCoupon.coupon?.code})</span>
-                        <span>-{formatPrice(discountAmount)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-blue-600">
-                        <span>Taxa de indicação</span>
-                        <span>-{formatPrice(commissionAmount)}</span>
-                      </div>
-                    </>
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Desconto ({appliedCoupon.coupon?.code})</span>
+                      <span>-{formatPrice(discountAmount)}</span>
+                    </div>
                   )}
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
@@ -653,7 +642,7 @@ export default function Checkout() {
                   </div>
                   {appliedCoupon && (
                     <div className="text-xs text-green-600 text-center">
-                      Você economizou {formatPrice(totalReduction)}!
+                      Você economizou {formatPrice(discountAmount)}!
                     </div>
                   )}
                 </div>

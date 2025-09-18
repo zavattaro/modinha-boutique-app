@@ -61,14 +61,13 @@ export class CouponService {
         return { valid: false, error: 'Cupom esgotado' };
       }
 
-      // Calculate discount and commission
+      // Calculate discount (customer pays 10% less)
       const discountRate = coupon.discount_rate / 100;
-      const commissionRate = 0.10; // 10% commission fixed
-
       const discountAmount = orderAmount * discountRate;
-      const commissionAmount = orderAmount * commissionRate;
-      const totalReduction = discountAmount + commissionAmount;
-      const finalAmount = orderAmount - totalReduction;
+      
+      // The discount amount goes to affiliate as commission
+      const commissionAmount = discountAmount;
+      const finalAmount = orderAmount - discountAmount;
 
       return {
         valid: true,
