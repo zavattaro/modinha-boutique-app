@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CreditCard, Truck, MapPin, User, Phone, Mail, MessageCircle, Smartphone } from 'lucide-react';
+import { CreditCard, Truck, MapPin, User, Phone, Mail, MessageCircle, Smartphone, Tag, Check, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 import { MercadoPagoService } from '@/services/mercadoPagoService';
+import { CouponService, type CouponValidationResult } from '@/services/couponService';
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
@@ -21,6 +22,12 @@ export default function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('whatsapp');
   const [paymentMethodId, setPaymentMethodId] = useState('');
+  
+  // Coupon states
+  const [couponCode, setCouponCode] = useState('');
+  const [couponValidation, setCouponValidation] = useState<CouponValidationResult | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null);
   
   const [customerInfo, setCustomerInfo] = useState({
     name: user?.name || '',
@@ -41,10 +48,70 @@ export default function Checkout() {
   };
 
   const shipping = total >= 299 ? 0 : 29.90;
-  const finalTotal = total + shipping;
+  const subtotalWithShipping = total + shipping;
+  
+  // Calculate final amounts with coupon
+  const discountAmount = appliedCoupon?.discountAmount || 0;
+  const commissionAmount = appliedCoupon?.commissionAmount || 0;
+  const totalReduction = discountAmount + commissionAmount;
+  const finalTotal = appliedCoupon ? Math.max(subtotalWithShipping - totalReduction, 0) : subtotalWithShipping;
 
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleValidateCoupon = async () => {
+    if (!couponCode.trim()) return;
+    
+    setIsValidatingCoupon(true);
+    try {
+      const result = await CouponService.validateCoupon(couponCode.trim(), subtotalWithShipping);
+      setCouponValidation(result);
+      
+      if (result.valid) {
+        toast({
+          title: "Cupom válido!",
+          description: `Desconto de ${formatPrice(result.discountAmount || 0)} aplicado`,
+        });
+      } else {
+        toast({
+          title: "Cupom inválido",
+          description: result.error,
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error validating coupon:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao validar cupom. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleApplyCoupon = () => {
+    if (couponValidation?.valid) {
+      setAppliedCoupon(couponValidation);
+      setCouponCode('');
+      setCouponValidation(null);
+      toast({
+        title: "Cupom aplicado!",
+        description: `Desconto de ${formatPrice(couponValidation.discountAmount || 0)} aplicado com sucesso`,
+      });
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponValidation(null);
+    toast({
+      title: "Cupom removido",
+      description: "O cupom foi removido do pedido",
+    });
   };
 
   const generateWhatsAppMessage = () => {
@@ -68,6 +135,10 @@ export default function Checkout() {
     message += `💰 *Resumo Financeiro:*\n`;
     message += `• Subtotal: ${formatPrice(total)}\n`;
     message += `• Frete: ${shipping === 0 ? 'GRÁTIS' : formatPrice(shipping)}\n`;
+    if (appliedCoupon) {
+      message += `• Desconto (${appliedCoupon.coupon?.code}): -${formatPrice(discountAmount)}\n`;
+      message += `• Taxa de indicação: -${formatPrice(commissionAmount)}\n`;
+    }
     message += `• *Total: ${formatPrice(finalTotal)}*\n\n`;
     
     if (customerInfo.notes) {
@@ -412,6 +483,96 @@ export default function Checkout() {
               </CardContent>
             </Card>
 
+            {/* Coupon Section */}
+            <Card className="bg-gradient-card border-border/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Tag className="w-5 h-5" />
+                  Cupom de Desconto
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!appliedCoupon ? (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder="Digite o código do cupom"
+                        disabled={isValidatingCoupon}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleValidateCoupon}
+                        disabled={!couponCode.trim() || isValidatingCoupon}
+                      >
+                        {isValidatingCoupon ? 'Validando...' : 'Validar'}
+                      </Button>
+                    </div>
+                    
+                    {couponValidation && (
+                      <div className={`p-3 rounded-lg border ${
+                        couponValidation.valid 
+                          ? 'bg-green-50 border-green-200 text-green-800' 
+                          : 'bg-red-50 border-red-200 text-red-800'
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          {couponValidation.valid ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <AlertCircle className="w-4 h-4" />
+                          )}
+                          <span className="text-sm font-medium">
+                            {couponValidation.valid ? 'Cupom válido!' : 'Cupom inválido'}
+                          </span>
+                        </div>
+                        {couponValidation.valid ? (
+                          <div className="mt-2 space-y-1 text-xs">
+                            <p>Desconto: {formatPrice(couponValidation.discountAmount || 0)}</p>
+                            <p>Indicação: {formatPrice(couponValidation.commissionAmount || 0)}</p>
+                            <p className="font-medium">Você pagará: {formatPrice(couponValidation.finalAmount || 0)}</p>
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="mt-2"
+                              onClick={handleApplyCoupon}
+                            >
+                              Aplicar Cupom
+                            </Button>
+                          </div>
+                        ) : (
+                          <p className="mt-1 text-xs">{couponValidation.error}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg border bg-green-50 border-green-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-green-800">
+                        <Check className="w-4 h-4" />
+                        <span className="font-medium">Cupom {appliedCoupon.coupon?.code} aplicado</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveCoupon}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Remover
+                      </Button>
+                    </div>
+                    <div className="mt-2 space-y-1 text-xs text-green-700">
+                      <p>Desconto: {formatPrice(discountAmount)}</p>
+                      <p>Taxa de indicação: {formatPrice(commissionAmount)}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Notes */}
             <Card className="bg-gradient-card border-border/50">
               <CardHeader>
@@ -473,11 +634,28 @@ export default function Checkout() {
                       {shipping === 0 ? 'GRÁTIS' : formatPrice(shipping)}
                     </span>
                   </div>
+                  {appliedCoupon && (
+                    <>
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Desconto ({appliedCoupon.coupon?.code})</span>
+                        <span>-{formatPrice(discountAmount)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-blue-600">
+                        <span>Taxa de indicação</span>
+                        <span>-{formatPrice(commissionAmount)}</span>
+                      </div>
+                    </>
+                  )}
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
                     <span className="text-primary">{formatPrice(finalTotal)}</span>
                   </div>
+                  {appliedCoupon && (
+                    <div className="text-xs text-green-600 text-center">
+                      Você economizou {formatPrice(totalReduction)}!
+                    </div>
+                  )}
                 </div>
 
                 {/* Submit Button */}

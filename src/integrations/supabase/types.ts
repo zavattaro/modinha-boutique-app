@@ -14,7 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      affiliates: {
+        Row: {
+          balance: number | null
+          commission_rate: number | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          balance?: number | null
+          commission_rate?: number | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          balance?: number | null
+          commission_rate?: number | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      coupon_transactions: {
+        Row: {
+          affiliate_id: string | null
+          commission_amount: number
+          coupon_id: string | null
+          created_at: string
+          customer_info: Json | null
+          discount_amount: number
+          final_amount: number
+          id: string
+          order_reference: string | null
+          original_amount: number
+        }
+        Insert: {
+          affiliate_id?: string | null
+          commission_amount: number
+          coupon_id?: string | null
+          created_at?: string
+          customer_info?: Json | null
+          discount_amount: number
+          final_amount: number
+          id?: string
+          order_reference?: string | null
+          original_amount: number
+        }
+        Update: {
+          affiliate_id?: string | null
+          commission_amount?: number
+          coupon_id?: string | null
+          created_at?: string
+          customer_info?: Json | null
+          discount_amount?: number
+          final_amount?: number
+          id?: string
+          order_reference?: string | null
+          original_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_transactions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_transactions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          affiliate_id: string | null
+          code: string
+          created_at: string
+          discount_rate: number | null
+          id: string
+          max_usage: number | null
+          status: string | null
+          updated_at: string
+          usage_count: number | null
+          valid_until: string | null
+        }
+        Insert: {
+          affiliate_id?: string | null
+          code: string
+          created_at?: string
+          discount_rate?: number | null
+          id?: string
+          max_usage?: number | null
+          status?: string | null
+          updated_at?: string
+          usage_count?: number | null
+          valid_until?: string | null
+        }
+        Update: {
+          affiliate_id?: string | null
+          code?: string
+          created_at?: string
+          discount_rate?: number | null
+          id?: string
+          max_usage?: number | null
+          status?: string | null
+          updated_at?: string
+          usage_count?: number | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupons_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
