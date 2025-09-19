@@ -100,7 +100,7 @@ export default function Login() {
             {/* Demo Credentials */}
             <div className="bg-muted/50 rounded-lg p-4 text-sm">
               <p className="font-medium mb-2">💡 Credenciais para teste:</p>
-              <p><strong>Admin:</strong> admin@ubisshop.com / admin123</p>
+              <p><strong>Admin:</strong> admin@manus.com / admin123</p>
               <p><strong>Cliente:</strong> joao@email.com / 123456</p>
             </div>
 

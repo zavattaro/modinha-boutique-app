@@ -11,7 +11,8 @@ import {
   Eye,
   BarChart3,
   ShoppingCart,
-  Star
+  Star,
+  Tag
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +28,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { mockProducts } from '@/data/mockProducts';
 import { Product } from '@/types';
 import { toast } from '@/components/ui/use-toast';
+import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -88,6 +90,16 @@ export default function AdminDashboard() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Dashboard Admin</h1>
         <p className="text-muted-foreground">Gerencie produtos, usuários e vendas</p>
+        
+        {/* Quick Actions */}
+        <div className="flex gap-4 mt-4">
+          <Link to="/admin/afiliados">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              Gerenciar Afiliados
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
