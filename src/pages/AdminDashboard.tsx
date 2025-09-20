@@ -31,7 +31,7 @@ import { toast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
 
   // Check if user is admin
   useEffect(() => {
-    if (!user?.isAdmin) {
+    if (!profile?.is_admin) {
       toast({
         title: "Acesso negado",
         description: "Você não tem permissão para acessar esta área",
@@ -47,9 +47,9 @@ export default function AdminDashboard() {
       });
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [profile, navigate]);
 
-  if (!user?.isAdmin) {
+  if (!profile?.is_admin) {
     return null;
   }
 

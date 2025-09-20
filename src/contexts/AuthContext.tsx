@@ -1,13 +1,25 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/types';
+import { User as AuthUser, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
+  profile: UserProfile | null;
+  session: Session | null;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   loading: boolean;
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  phone?: string;
+  is_admin: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 interface RegisterData {
@@ -19,112 +31,95 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-const mockUsers: (User & { password: string })[] = [
-  {
-    id: '1',
-    name: 'Admin Manus',
-    email: 'admin@manus.com',
-    password: 'admin123',
-    isAdmin: true,
-    createdAt: '2024-01-01T00:00:00Z'
-  },
-  {
-    id: '2',
-    name: 'João Silva',
-    email: 'joao@email.com',
-    password: '123456',
-    phone: '(11) 99999-9999',
-    createdAt: '2024-01-15T00:00:00Z'
-  }
-];
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('ubisshop_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fetch user profile after authentication
+          setTimeout(async () => {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+            setProfile(profileData);
+          }, 0);
+        } else {
+          setProfile(null);
+        }
+        
+        setLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (!session) {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      // Mock login logic
-      const foundUser = mockUsers.find(u => u.email === email && u.password === password);
-      if (!foundUser) {
-        throw new Error('Credenciais inválidas');
-      }
-      
-      const { password: _, ...userData } = foundUser;
-      setUser(userData);
-      localStorage.setItem('ubisshop_user', JSON.stringify(userData));
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
   };
 
   const loginWithGoogle = async () => {
-    setLoading(true);
-    try {
-      // Mock Google login
-      const googleUser: User = {
-        id: 'google_' + Date.now(),
-        name: 'Usuário Google',
-        email: 'usuario@gmail.com',
-        createdAt: new Date().toISOString()
-      };
-      setUser(googleUser);
-      localStorage.setItem('ubisshop_user', JSON.stringify(googleUser));
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`
+      }
+    });
+    
+    if (error) throw error;
   };
 
   const register = async (userData: RegisterData) => {
-    setLoading(true);
-    try {
-      // Mock registration logic
-      const existingUser = mockUsers.find(u => u.email === userData.email);
-      if (existingUser) {
-        throw new Error('Email já cadastrado');
+    const { error } = await supabase.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: {
+          name: userData.name,
+          phone: userData.phone
+        }
       }
-
-      const newUser: User = {
-        id: 'user_' + Date.now(),
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        createdAt: new Date().toISOString()
-      };
-
-      mockUsers.push({ ...newUser, password: userData.password });
-      setUser(newUser);
-      localStorage.setItem('ubisshop_user', JSON.stringify(newUser));
-    } catch (error) {
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    });
+    
+    if (error) throw error;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('ubisshop_user');
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   };
 
   return (
     <AuthContext.Provider value={{
       user,
+      profile,
+      session,
       login,
       loginWithGoogle,
       register,

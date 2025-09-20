@@ -17,7 +17,7 @@ import { CouponService, type CouponValidationResult } from '@/services/couponSer
 
 export default function Checkout() {
   const { items, total, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('whatsapp');
@@ -30,9 +30,9 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null);
   
   const [customerInfo, setCustomerInfo] = useState({
-    name: user?.name || '',
+    name: profile?.name || '',
     email: user?.email || '',
-    phone: user?.phone || '',
+    phone: profile?.phone || '',
     address: '',
     city: '',
     state: '',

@@ -10,7 +10,7 @@ import ubisLogo from '@/assets/ubis-logo.jpg';
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
   const { itemCount } = useCart();
   const location = useLocation();
 
@@ -86,7 +86,7 @@ export default function Header() {
             {/* User Menu */}
             {user ? (
               <div className="hidden md:flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">Olá, {user.name.split(' ')[0]}</span>
+                <span className="text-sm text-muted-foreground">Olá, {profile?.name?.split(' ')[0]}</span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -169,7 +169,7 @@ export default function Header() {
             <div className="border-t border-border pt-4">
               {user ? (
                 <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Olá, {user.name}</p>
+                  <p className="text-sm text-muted-foreground">Olá, {profile?.name}</p>
                   <Button variant="ghost" onClick={logout} className="w-full justify-start">
                     Sair
                   </Button>
